@@ -576,6 +576,19 @@ BBTCOView {
 	background-color: rgb( 128, 182, 175 ); /* default colour for bb-tracks */
 }
 
+/* subwindows in MDI-Area */
+SubWindow {
+        qproperty-activeDecorationColor1: rgb(77, 96, 148);
+        qproperty-activeDecorationColor2: rgb(97, 116, 168);
+        qproperty-inactiveDecorationColor1: rgb(119, 119, 119);
+        qproperty-inactiveDecorationColor2: rgb(139, 139, 139);
+        qproperty-leftUpperBorderColor: rgb(164,164,164);
+        qproperty-titleTextColor: rgb(255, 255, 255);
+        qproperty-titleTextShadowColor: rgb(0, 0, 0);
+        qproperty-windowBorderColor: rgb(0, 0, 0);
+        qproperty-windowDecorationBorderColor: rgb(57, 57, 57);
+}
+
 /* Plugins */
 
 TripleOscillatorView Knob {
