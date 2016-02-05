@@ -106,7 +106,7 @@ Fader::Fader( FloatModel * _model, const QString & _name, QWidget * _parent ) :
 	setMaximumSize( 23, 116);
 	resize( 23, 116 );
 	setModel( _model );
-	setHintText( "Volume:","%");
+	
 }
 
 

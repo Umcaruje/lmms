@@ -49,6 +49,7 @@
 #include "BBTrackContainer.h"
 #include "StringPairDrag.h"
 #include "MainWindow.h"
+#include "TextFloat.h"
 
 
 QPixmap * PatternView::s_stepBtnOn = NULL;
@@ -884,6 +885,24 @@ void PatternView::mouseDoubleClickEvent(QMouseEvent *_me)
 
 
 
+void Pattern::showTextFloat(const QString &text, const QPoint &pos, int timeout)
+{
+	s_textFloat->setText( text );
+	// show the float, offset slightly so as to not obscure anything
+	s_textFloat->moveGlobal( this, pos + QPoint(4, 16) );
+	if (timeout == -1)
+	{
+		s_textFloat->show();
+	}
+	else
+	{
+		s_textFloat->setVisibilityTimeOut( timeout );
+	}
+}
+
+
+
+
 void PatternView::wheelEvent( QWheelEvent * _we )
 {
 	if( m_pat->m_patternType == Pattern::BeatPattern &&
@@ -926,6 +945,8 @@ void PatternView::wheelEvent( QWheelEvent * _we )
 				n->setVolume( qMax( 0, vol - 5 ) );
 			}
 
+			showTextFloat( tr("Volume: %1%").arg( vol ), QPoint( 100, 100), 20 );
+			
 			Engine::getSong()->setModified();
 			update();
 			if( gui->pianoRoll()->currentPattern() == m_pat )
