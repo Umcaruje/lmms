@@ -2830,59 +2830,59 @@ void PianoRoll::paintEvent(QPaintEvent * pe )
 	// triplet mode occurs if the note duration isn't a multiple of 3
 	bool triplets = ( quantization() % 3 != 0 );
 
-	int spt = MidiTime::stepsPerTact();
-	float pp16th = (float)m_ppt / spt;
+	int tpt = MidiTime::ticksPerTact();
+	float pptick = (float)m_ppt / tpt;
 	int bpt = DefaultBeatsPerTact;
 	if ( triplets ) {
-		spt = static_cast<int>(1.5 * spt);
+		tpt = static_cast<int>(1.5 * tpt);
 		bpt = static_cast<int>(bpt * 2.0/3.0);
-		pp16th *= 2.0/3.0;
+		pptick *= 2.0/3.0;
 	}
 
-	int tact_16th = m_currentPosition / bpt;
+	int tact_192th = m_currentPosition / bpt;
 
 	const int offset = ( m_currentPosition % bpt ) *
 			m_ppt / MidiTime::ticksPerTact();
 
-	bool show32nds = ( m_zoomingModel.value() > 3 );
+	//bool show32nds = ( m_zoomingModel.value() > 3 );
 
 	// we need float here as odd time signatures might produce rounding
 	// errors else and thus an unusable grid
 	for( float x = WHITE_KEY_WIDTH - offset; x < width();
-						x += pp16th, ++tact_16th )
+						x += pptick, ++tact_192th )
 	{
 		if( x >= WHITE_KEY_WIDTH )
 		{
 			// every tact-start needs to be a bright line
-			if( tact_16th % spt == 0 )
+			if( tact_192th % tpt == 0 )
 			{
 	 			p.setPen( gridColor() );
 			}
 			// normal line
-			else if( tact_16th % 4 == 0 )
+			else if( tact_192th % (DefaultTicksPerTact / Engine::getSong()->getTimeSigModel().getDenominator()) == 0 )
 			{
 				vertCol.setAlpha( 160 );
 				p.setPen( vertCol );
 			}
 			// weak line
-			else
+			else if ( tact_192th % quantization() == 0 )
 			{
-				vertCol.setAlpha( 128 );
+				vertCol.setAlpha( 80 );
 				p.setPen( vertCol );
 			}
 
 			p.drawLine( (int) x, PR_TOP_MARGIN, (int) x, height() -
 							PR_BOTTOM_MARGIN );
 
-			// extra 32nd's line
+/*			// extra 32nd's line
 			if( show32nds )
 			{
 				vertCol.setAlpha( 80 );
 				p.setPen( vertCol );
-				p.drawLine( (int)(x + pp16th / 2) , PR_TOP_MARGIN,
-						(int)(x + pp16th / 2), height() -
+				p.drawLine( (int)(x + pptick / 2) , PR_TOP_MARGIN,
+						(int)(x + pptick / 2), height() -
 						PR_BOTTOM_MARGIN );
-			}
+			}*/
 		}
 	}
 

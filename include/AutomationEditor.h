@@ -158,15 +158,6 @@ private:
 		MOVE_SELECTION
 	} ;
 
-	// some constants...
-	static const int SCROLLBAR_SIZE = 16;
-	static const int TOP_MARGIN = 16;
-
-	static const int DEFAULT_Y_DELTA = 6;
-	static const int DEFAULT_STEPS_PER_TACT = 16;
-	static const int DEFAULT_PPT = 12 * DEFAULT_STEPS_PER_TACT;
-
-	static const int VALUES_WIDTH = 64;
 
 	AutomationEditor();
 	AutomationEditor( const AutomationEditor & );

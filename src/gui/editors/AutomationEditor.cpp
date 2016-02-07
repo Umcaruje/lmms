@@ -77,6 +77,22 @@ QPixmap * AutomationEditor::s_toolXFlip = NULL;
 
 
 
+// some constants...
+const int SCROLLBAR_SIZE = 16;
+const int TOP_MARGIN = 16;
+
+const int DEFAULT_Y_DELTA = 6;
+const int DEFAULT_STEPS_PER_TACT = 16;
+const int DEFAULT_PPT = 12 * DEFAULT_STEPS_PER_TACT;
+
+const int VALUES_WIDTH = 64;
+	
+// number of each note to provide in quantization and note lengths
+const int NUM_EVEN_LENGTHS = 6;
+const int NUM_TRIPLET_LENGTHS = 5;
+
+
+
 
 AutomationEditor::AutomationEditor() :
 	QWidget(),
@@ -119,10 +135,23 @@ AutomationEditor::AutomationEditor() :
 	connect( m_tensionModel, SIGNAL( dataChanged() ),
 				this, SLOT( setTension() ) );
 
-	for( int i = 0; i < 7; ++i )
+	/*for( int i = 0; i < 7; ++i )
+	{
+		m_quantizeModel.addItem( "1/" + QString::number( 1 << i ) );
+	}*/
+	
+	m_quantizeModel.addItem( tr( "Note lock" ) );
+	for( int i = 0; i <= NUM_EVEN_LENGTHS; ++i )
 	{
 		m_quantizeModel.addItem( "1/" + QString::number( 1 << i ) );
 	}
+	for( int i = 0; i < NUM_TRIPLET_LENGTHS; ++i )
+	{
+		m_quantizeModel.addItem( "1/" + QString::number( (1 << i) * 3 ) );
+	}
+	m_quantizeModel.addItem( "1/192" );
+	m_quantizeModel.setValue( m_quantizeModel.findText( "1/16" ) );
+	
 	if( s_toolYFlip == NULL )
 	{
 		s_toolYFlip = new QPixmap( embed::getIconPixmap(
