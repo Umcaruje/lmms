@@ -28,6 +28,7 @@
 
 #include <QEvent>
 #include <QMdiSubWindow>
+#include <QToolBar>
 
 #include "export.h"
 #include "PixmapButton.h"
@@ -40,55 +41,37 @@ class QWidget;
 class EXPORT SubWindow : public QMdiSubWindow
 {
 	Q_OBJECT
-    Q_PROPERTY(QColor activeDecorationColor1 READ activeDecorationColor1 WRITE setActiveDecorationColor1)
-    Q_PROPERTY(QColor activeDecorationColor2 READ activeDecorationColor2 WRITE setActiveDecorationColor2)
-    Q_PROPERTY(QColor inactiveDecorationColor1 READ inactiveDecorationColor1 WRITE setInactiveDecorationColor1)
-    Q_PROPERTY(QColor inactiveDecorationColor2 READ inactiveDecorationColor2 WRITE setInactiveDecorationColor2)
-	Q_PROPERTY(QColor leftUpperBorderColor READ leftUpperBorderColor WRITE setLeftUpperBorderColor)
-    Q_PROPERTY(QColor titleTextColor READ titleTextColor WRITE setTitleTextColor)
-    Q_PROPERTY(QColor titleTextShadowColor READ titleTextShadowColor WRITE setTitleTextShadowColor)
-	Q_PROPERTY(QColor windowBorderColor READ windowBorderColor WRITE setWindowBorderColor)
-	Q_PROPERTY(QColor windowDecorationBorderColor READ windowDecorationBorderColor WRITE setWindowDecorationBorderColor)
+    Q_PROPERTY(QBrush activeColor READ activeColor WRITE setActiveColor)
+    Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
+    Q_PROPERTY(QColor textShadowColor READ textShadowColor WRITE setTextShadowColor)
+		Q_PROPERTY(QColor borderColor READ borderColor WRITE setBorderColor)
 
 public:
 	SubWindow(QWidget *parent = NULL, Qt::WindowFlags windowFlags = 0);
 	// same as QWidet::normalGeometry, but works properly under X11 (see https://bugreports.qt.io/browse/QTBUG-256)
 	QRect getTrueNormalGeometry() const;
-    QColor activeDecorationColor1() const;
-    QColor activeDecorationColor2() const;
-    QColor inactiveDecorationColor1() const;
-    QColor inactiveDecorationColor2() const;
-	QColor leftUpperBorderColor() const;
-    QColor titleTextColor() const;
-    QColor titleTextShadowColor() const;
-	QColor windowBorderColor() const;
-	QColor windowDecorationBorderColor() const;
-    void setActiveDecorationColor1(const QColor& c);
-    void setActiveDecorationColor2(const QColor& c);
-    void setInactiveDecorationColor1(const QColor &c);
-    void setInactiveDecorationColor2(const QColor &c);
-	void setLeftUpperBorderColor(const QColor &c);
-    void setTitleTextColor(const QColor &c);
-    void setTitleTextShadowColor(const QColor &c);
-	void setWindowBorderColor(const QColor &c);
-	void setWindowDecorationBorderColor(const QColor &c);
+	QBrush activeColor() const;
+	QColor textColor() const;
+	QColor textShadowColor() const;
+	QColor borderColor() const;
+	void setActiveColor(const QBrush & b);
+	void setTextColor(const QColor &c);
+	void setTextShadowColor(const QColor &c);
+	void setBorderColor(const QColor &c);
 
 protected:
 	// hook the QWidget move/resize events to update the tracked geometry
-	virtual void moveEvent(QMoveEvent * event);
-	virtual void resizeEvent(QResizeEvent * event);
-	void paintEvent(QPaintEvent *);
+	virtual void moveEvent( QMoveEvent * event );
+	virtual void resizeEvent( QResizeEvent * event );
+	virtual void paintEvent( QPaintEvent * pe );
+	
 private:
+	QToolBar * m_toolbar;
 	bool m_closeHover;
-    QColor m_activeDecorationColor1;
-    QColor m_activeDecorationColor2;
-    QColor m_inactivDecorationColor1;
-    QColor m_inactivDecorationColor2;
-	QColor m_leftUpperBorderColor;
-    QColor m_titleTextColor;
-    QColor m_titleTextShadowColor;
-	QColor m_windowBorderColor;
-	QColor m_windowDecorationBorderColor;
+	QBrush m_activeColor;
+  QColor m_textColor;
+	QColor m_textShadowColor;
+	QColor m_borderColor;
 	QPoint m_position;
 	QRect m_trackedNormalGeom;
 };

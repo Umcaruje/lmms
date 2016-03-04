@@ -31,7 +31,9 @@
 #include <QMoveEvent>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QPushButton>
 #include <QWidget>
+
 #include "embed.h"
 
 
@@ -42,16 +44,18 @@ SubWindow::SubWindow(QWidget *parent, Qt::WindowFlags windowFlags)
 {
 	// initialize the tracked geometry to whatever Qt thinks the normal geometry currently is.
 	// this should always work, since QMdiSubWindows will not start as maximized
-	m_trackedNormalGeom = normalGeometry();
-    m_activeDecorationColor1 = QColor(77,96,148);
-    m_activeDecorationColor2 = QColor(255,116,168);
-    m_inactivDecorationColor1 = QColor(119,119,119);
-    m_inactivDecorationColor2 = QColor(255,129,129);
-	m_leftUpperBorderColor = QColor(164,164,164);
-    m_titleTextColor = Qt::white;
-    m_titleTextShadowColor = Qt::black;
-	m_windowDecorationBorderColor = QColor(57,57,57);
-	m_windowBorderColor = Qt::black;
+  	m_trackedNormalGeom = normalGeometry();
+    m_activeColor = Qt::SolidPattern;
+    m_textColor = Qt::white;
+    m_textShadowColor = Qt::black;
+  	m_borderColor = Qt::black;
+    m_toolbar = new QToolBar( this );
+    QPushButton * closeBtn = new QPushButton( embed::getIconPixmap( "close" ), QString::null, this );
+    closeBtn->resize(17, 17);
+    m_toolbar->addWidget(closeBtn);
+    m_toolbar->resize(24,24);
+    //setStyle( QApplication::style() );
+    //setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 }
 
 
@@ -59,68 +63,60 @@ SubWindow::SubWindow(QWidget *parent, Qt::WindowFlags windowFlags)
 
 void SubWindow::paintEvent(QPaintEvent *)
 {
-	QPainter painter(this);
-	QRectF rect(0,0,width()-1,20);
-    QLinearGradient winDecoGradient(rect.topLeft() ,rect.bottomLeft() );
+  QPainter p( this );
+  const int titleBarHeight = 24;
+  QRect rect( 0, 0, width() , titleBarHeight );
+  bool isActive = SubWindow::mdiArea()->activeSubWindow() == this;
+  
+  p.fillRect(rect, isActive ? activeColor() : p.pen().brush() );
 
-	if ( SubWindow::mdiArea()->activeSubWindow() == this  )
-	{
-        winDecoGradient.setColorAt(0,m_activeDecorationColor1);
-        winDecoGradient.setColorAt(1,m_activeDecorationColor2);
-	}
-	else
-	{
-        winDecoGradient.setColorAt(0,m_inactivDecorationColor1);
-        winDecoGradient.setColorAt(1,m_inactivDecorationColor2);
-	}
+	// window border
+  QPen pen;
+	p.setPen( borderColor() );
 
-    painter.fillRect(rect,winDecoGradient);
+  // bottom, left, and right lines
+  p.drawLine( 0, height() - 1, width(), height() - 1 );
+  p.drawLine( 0, titleBarHeight, 0, height() - 1 );
+  p.drawLine( width() - 1, titleBarHeight, width() - 1, height() - 1 );
 
-	//window border
-	QPen pen;
-	pen.setColor(m_windowBorderColor);
-	painter.setPen(pen);
-	painter.drawRect(0,0,width()-1,height()-1);
-
-
-
-	pen.setColor(m_windowDecorationBorderColor);
-	painter.setPen(pen);
-	painter.drawRect(rect);
-	painter.drawLine(2,0,0,2);
-	painter.drawLine(width()-3,0,width()-1,2);
-	pen.setColor(m_leftUpperBorderColor);
-	painter.setPen(pen);
-	painter.drawLine(2,1,width()-3,1);
-	painter.drawLine(1,2,1,19);
-
-
-
-	//Text and Button
-    pen.setColor(m_titleTextShadowColor);
-	painter.setPen(pen);
-    painter.drawText(QRect(0,0,rect.width()+1,rect.height()+1),
-                     widget()->windowTitle(),QTextOption(Qt::AlignCenter));
-    pen.setColor(m_titleTextColor);
-	painter.setPen(pen);
-    painter.drawText(rect, widget()->windowTitle(),QTextOption(Qt::AlignCenter));
-	QPixmap winicon(widget()->windowIcon().pixmap(QSize(17,17)));
-	QPixmap closeBtn(embed::getIconPixmap("close"));
-	if(windowFlags() & Qt::WindowMinimizeButtonHint)
+	// window title
+  /*if( m_windowTitle.text() != widget()->windowTitle() )
+  {
+    m_windowTitle.setText( widget()->windowTitle() );
+  }*/
+  // the width of the window buttons
+  
+  /*const int buttonWidth = 20;  
+  int textWidth = rect.width() - ( titleBarHeight + buttonWidth );
+  QFontMetrics metrics( p.font() );
+  QString clippedText = metrics.elidedText(m_windowTitle.text(), Qt::ElideRight, textWidth);
+  m_windowTitle.setText(clippedText);*/
+  //m_windowTitle.setTextOption( Qt::AlignCenter );
+  m_toolbar -> move( width()-m_toolbar->width(), 0 );
+  QRect textRect(24, 0, rect.width()-24, rect.height() );
+  p.setPen( textShadowColor() );
+  textRect.translate(1,1);
+  p.drawText( textRect, widget()->windowTitle(), QTextOption(Qt::AlignCenter) );
+	p.setPen( textColor() );
+  textRect.translate(-1,-1);
+  p.drawText( textRect, widget()->windowTitle(), QTextOption(Qt::AlignCenter) );
+  
+  
+  QPixmap winicon(widget()->windowIcon().pixmap(QSize(17,17)));
+	if( windowFlags() & Qt::WindowMinimizeButtonHint)
 	{
 		int d = 0;
-		if (windowFlags() & Qt::WindowMaximizeButtonHint) { d = 18; }
+		if ( windowFlags() & Qt::WindowMaximizeButtonHint) { d = 18; }
 		QPixmap minimizeBtn(embed::getIconPixmap("minimize"));
-		painter.drawPixmap(width()-17-3-1-17-d,3,17,17,minimizeBtn);
+		p.drawPixmap(width()-17-3-1-17-d,3,17,17,minimizeBtn);
 	}
-	if(windowFlags() & Qt::WindowMaximizeButtonHint)
+	if( windowFlags() & Qt::WindowMaximizeButtonHint)
 	{
 		QPixmap maximizeBtn(embed::getIconPixmap("maximize"));
-		painter.drawPixmap(width()-17-3-1-17,3,17,17,maximizeBtn);
+		p.drawPixmap(width()-17-3-1-17,3,17,17,maximizeBtn);
 	}
 
-	painter.drawPixmap(3,3,17,17,winicon);
-	painter.drawPixmap(width()-17-3,3,17,17,closeBtn);
+	p.drawPixmap(3,3,17,17,winicon);
 }
 
 
@@ -134,145 +130,47 @@ QRect SubWindow::getTrueNormalGeometry() const
 
 
 
-QColor SubWindow::activeDecorationColor1() const
+QBrush SubWindow::activeColor() const
 {
-    return m_activeDecorationColor1;
+    return m_activeColor;
+}
+
+QColor SubWindow::textColor() const
+{
+    return m_textColor;
+}
+
+QColor SubWindow::textShadowColor() const
+{
+    return m_textShadowColor;
+}
+
+QColor SubWindow::borderColor() const
+{
+	return m_borderColor;
 }
 
 
 
 
-QColor SubWindow::activeDecorationColor2() const
+void SubWindow::setActiveColor( const QBrush & b )
 {
-    return m_activeDecorationColor2;
+    m_activeColor = b;
 }
 
-
-
-
-QColor SubWindow::inactiveDecorationColor1() const
+void SubWindow::setTextColor(const QColor & c)
 {
-    return m_inactivDecorationColor1;
+    m_textColor = c;
 }
 
-
-
-
-QColor SubWindow::inactiveDecorationColor2() const
+void SubWindow::setTextShadowColor(const QColor & c)
 {
-    return m_inactivDecorationColor2;
+    m_textShadowColor = c;
 }
 
-
-
-
-QColor SubWindow::leftUpperBorderColor() const
+void SubWindow::setBorderColor(const QColor &c)
 {
-	return m_leftUpperBorderColor;
-}
-
-
-
-
-QColor SubWindow::titleTextColor() const
-{
-    return m_titleTextColor;
-}
-
-
-
-
-QColor SubWindow::titleTextShadowColor() const
-{
-    return m_titleTextShadowColor;
-}
-
-
-
-
-QColor SubWindow::windowBorderColor() const
-{
-	return m_windowBorderColor;
-}
-
-
-
-
-QColor SubWindow::windowDecorationBorderColor() const
-{
-	return m_windowDecorationBorderColor;
-}
-
-
-
-
-void SubWindow::setActiveDecorationColor1(const QColor &c)
-{
-    m_activeDecorationColor1 = c;
-}
-
-
-
-
-void SubWindow::setActiveDecorationColor2(const QColor &c)
-{
-    m_activeDecorationColor2 = c;
-}
-
-
-
-
-void SubWindow::setInactiveDecorationColor1(const QColor &c)
-{
-    m_inactivDecorationColor1 = c;
-}
-
-
-
-
-void SubWindow::setInactiveDecorationColor2(const QColor &c)
-{
-    m_inactivDecorationColor2 = c;
-}
-
-
-
-
-void SubWindow::setLeftUpperBorderColor(const QColor &c)
-{
-	m_leftUpperBorderColor = c;
-}
-
-
-
-
-void SubWindow::setTitleTextColor(const QColor &c)
-{
-    m_titleTextColor = c;
-}
-
-
-
-
-void SubWindow::setTitleTextShadowColor(const QColor &c)
-{
-    m_titleTextShadowColor = c;
-}
-
-
-
-
-void SubWindow::setWindowBorderColor(const QColor &c)
-{
-	m_windowBorderColor = c;
-}
-
-
-
-
-void SubWindow::setWindowDecorationBorderColor(const QColor &c)
-{
-	m_windowDecorationBorderColor = c;
+	m_borderColor = c;
 }
 
 
