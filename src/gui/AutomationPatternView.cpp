@@ -305,6 +305,8 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 	lin2grad.setColorAt( 0.5, col );
 	lin2grad.setColorAt( 0, col.darker( 150 ) );
 
+	p.setRenderHints( QPainter::Antialiasing, true );
+ 
 	for( AutomationPattern::timeMap::const_iterator it =
 						m_pat->getTimeMap().begin();
 					it != m_pat->getTimeMap().end(); ++it )
@@ -312,7 +314,7 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 		if( it+1 == m_pat->getTimeMap().end() )
 		{
 			const float x1 = x_base + it.key() * ppt /
-						MidiTime::ticksPerTact();
+						MidiTime::ticksPerTact() + 0.5;
 			const float x2 = (float)( width() - TCO_BORDER_WIDTH );
 			if( x1 > ( width() - TCO_BORDER_WIDTH ) ) break;
 			if( gradient() )
@@ -331,7 +333,7 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 		{
 			float value = values[i - it.key()];
 			const float x1 = x_base + i * ppt /
-						MidiTime::ticksPerTact();
+						MidiTime::ticksPerTact() + 0.5;
 			const float x2 = x_base + (i + 1) * ppt /
 						MidiTime::ticksPerTact();
 			if( x1 > ( width() - TCO_BORDER_WIDTH ) ) break;
@@ -347,6 +349,8 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 		}
 		delete [] values;
 	}
+
+	p.setRenderHints( QPainter::Antialiasing, false );
 
 	p.resetMatrix();
 	
