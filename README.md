@@ -16,13 +16,7 @@ all in a user-friendly and modern interface.
 [Downloads/Releases](https://github.com/LMMS/lmms/releases)<br>
 [Developer Wiki](https://github.com/LMMS/lmms/wiki)<br>
 [Artist & User Wiki/Documentation](http://lmms.io/documentation)<br>
-[Sound Demos](http://lmms.io/showcase/)<br>
-[LMMS Sharing Platform](http://lmms.io/lsp/) Share your songs!
-
-Features
----------
-
-* Song-Editor for composing songs
+posing songs
 * A Beat+Bassline-Editor for creating beats and basslines
 * An easy-to-use Piano-Roll for editing patterns and melodies
 * An FX mixer with unlimited FX channels and arbitrary number of effects
